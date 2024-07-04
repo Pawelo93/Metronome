@@ -15,11 +15,14 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -95,16 +98,27 @@ private fun Counter(
     }
 
     Column {
-      Text(
-        style = AppTheme.typography.headingH1.copy(
-          fontSize = TextUnit(
-            80f,
-            TextUnitType.Sp
-          ), fontWeight = FontWeight.Bold,
-          color = AppTheme.colors.onPrimary,
-        ),
-        text = "100",
-      )
+      var selectedValue by remember {
+        mutableIntStateOf(100)
+      }
+
+      SwipeValueSelector(
+          initialValue = selectedValue,
+          onValueChange = { newValue ->
+            selectedValue = newValue
+            // Do something with the new value if needed
+          }
+        )
+//      Text(
+//        style = AppTheme.typography.headingH1.copy(
+//          fontSize = TextUnit(
+//            80f,
+//            TextUnitType.Sp
+//          ), fontWeight = FontWeight.Bold,
+//          color = AppTheme.colors.onPrimary,
+//        ),
+//        text = "100",
+//      )
     }
 
     Column {
@@ -125,7 +139,8 @@ private fun Counter(
     Row {
       for (i in listOf(1, 2, 5, 10)) {
         Text(
-          modifier = Modifier.padding(start = AppTheme.spacings.small, end = AppTheme.spacings.small)
+          modifier = Modifier
+            .padding(start = AppTheme.spacings.small, end = AppTheme.spacings.small)
             .then(
               if (i == selectedNumber) {
                 Modifier.background(
