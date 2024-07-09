@@ -19,27 +19,27 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import pl.pawelantonik.metronome.R
+import pl.pawelantonik.metronome.ui.extensions.clickableWithoutRipple
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MetronomeScreen() {
+  val mainViewModel: MainViewModel = hiltViewModel()
+  val mainUiState by mainViewModel.uiState.collectAsState()
+
   Scaffold(
     topBar = {
       CenterAlignedTopAppBar(
@@ -67,7 +67,13 @@ fun MetronomeScreen() {
         Spacer(modifier = Modifier.height(32.dp))
 
         Counter(
-          selectedNumber = 2,
+          selectedNumber = mainUiState.selectedChangeBpmValue.value,
+          bpmValue = mainUiState.bpm,
+          onBpmValueChange = { newBpm -> mainViewModel.onChangeBpm(newBpm) },
+          bpmValues = mainUiState.changeBpmValues,
+          onAddBpm = { mainViewModel.onChangeBpm(MainViewModel.BpmChangeDir.UP) },
+          onSubtractBpm = { mainViewModel.onChangeBpm(MainViewModel.BpmChangeDir.DOWN) },
+          onChangeBpmValue = { mainViewModel.onChangeBpmValue(it) }
         )
 
         MainRoundButton(
@@ -86,43 +92,41 @@ fun MetronomeScreen() {
 @Composable
 private fun Counter(
   selectedNumber: Int,
+  bpmValue: Int,
+  bpmValues: List<MainViewModel.ChangeBpmValue>,
+  onBpmValueChange: (value: Int) -> Unit,
+  onChangeBpmValue: (value: MainViewModel.ChangeBpmValue) -> Unit,
+  onAddBpm: () -> Unit,
+  onSubtractBpm: () -> Unit,
 ) {
 
-  Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceAround, verticalAlignment = Alignment.CenterVertically) {
-    val textStyle = AppTheme.typography.headingH1.copy(color = AppTheme.colors.onPrimary, fontSize = 52.sp)
+  Row(
+    modifier = Modifier.fillMaxWidth(),
+    horizontalArrangement = Arrangement.SpaceAround,
+    verticalAlignment = Alignment.CenterVertically
+  ) {
+    val textStyle =
+      AppTheme.typography.headingH1.copy(color = AppTheme.colors.onPrimary, fontSize = 52.sp)
     Column {
       Text(
+        modifier = Modifier.clickableWithoutRipple { onSubtractBpm() },
         style = textStyle,
         text = "-",
       )
     }
 
     Column {
-      var selectedValue by remember {
-        mutableIntStateOf(100)
-      }
-
       SwipeValueSelector(
-          initialValue = selectedValue,
-          onValueChange = { newValue ->
-            selectedValue = newValue
-            // Do something with the new value if needed
-          }
-        )
-//      Text(
-//        style = AppTheme.typography.headingH1.copy(
-//          fontSize = TextUnit(
-//            80f,
-//            TextUnitType.Sp
-//          ), fontWeight = FontWeight.Bold,
-//          color = AppTheme.colors.onPrimary,
-//        ),
-//        text = "100",
-//      )
+        initialValue = bpmValue,
+        onValueChange = {
+          onBpmValueChange(it)
+        },
+      )
     }
 
     Column {
       Text(
+        modifier = Modifier.clickableWithoutRipple { onAddBpm() },
         style = textStyle,
         text = "+",
       )
@@ -137,12 +141,13 @@ private fun Counter(
     verticalAlignment = Alignment.CenterVertically
   ) {
     Row {
-      for (i in listOf(1, 2, 5, 10)) {
+      for (valueChange in bpmValues) {
         Text(
           modifier = Modifier
+            .clickableWithoutRipple { onChangeBpmValue(valueChange) }
             .padding(start = AppTheme.spacings.small, end = AppTheme.spacings.small)
             .then(
-              if (i == selectedNumber) {
+              if (valueChange.value == selectedNumber) {
                 Modifier.background(
                   color = AppTheme.colors.primary,
                   shape = CircleShape,
@@ -153,7 +158,7 @@ private fun Counter(
             )
             .size(30.dp)
             .wrapContentSize(),
-          text = i.toString(),
+          text = valueChange.value.toString(),
         )
       }
     }

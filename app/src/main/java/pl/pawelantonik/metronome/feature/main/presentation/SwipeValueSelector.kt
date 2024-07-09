@@ -19,25 +19,32 @@ import kotlin.math.roundToInt
 
 @Composable
 fun SwipeValueSelector(
-  initialValue: Int = 125,
+  initialValue: Int,
   minValue: Int = 50,
   maxValue: Int = 200,
   sensitivity: Float = 0.2f,
-  onValueChange: (Int) -> Unit
+  onValueChange: (Int) -> Unit,
 ) {
+  var isSwiping by remember { mutableStateOf(false) }
   var currentValue by remember { mutableStateOf(initialValue) }
-  var dragStartY by remember { mutableStateOf(0f) }
+  if (isSwiping.not()) {
+    currentValue = initialValue
+  }
 
   Box(
     modifier = Modifier
       .pointerInput(Unit) {
         detectVerticalDragGestures(
-          onDragStart = { dragStartY = it.y },
           onVerticalDrag = { change, dragAmount ->
+            isSwiping = true
             val valueChange = -(dragAmount) * sensitivity
             currentValue = (currentValue + valueChange.roundToInt())
               .coerceIn(minValue, maxValue)
+
             onValueChange(currentValue)
+          },
+          onDragEnd = {
+            isSwiping = false
           }
         )
       },
