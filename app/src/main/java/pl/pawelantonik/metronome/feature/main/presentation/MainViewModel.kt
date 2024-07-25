@@ -39,6 +39,10 @@ class MainViewModel @Inject constructor() : BaseViewModel() {
     }
   }
 
+  fun startStop(isRunning: Boolean) {
+    _uiState.update { it.copy(isRunning = isRunning) }
+  }
+
   enum class BpmChangeDir {
     UP,
     DOWN,
@@ -61,7 +65,7 @@ class MainViewModel @Inject constructor() : BaseViewModel() {
     companion object {
       fun initial() = UiState(
         isRunning = false,
-        bpm = 120,
+        bpm = 60,
         selectedChangeBpmValue = TWO,
         changeBpmValues = ChangeBpmValue.entries,
         singleBar = SingleBar(1, 4),
@@ -70,6 +74,9 @@ class MainViewModel @Inject constructor() : BaseViewModel() {
 
     val isAccentBeat: Boolean
       get() = singleBar.currentBit == 1
+
+    val intervalMs: Long
+      get() = (60000.0 / bpm).toLong()
   }
 }
 
