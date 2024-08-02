@@ -1,6 +1,7 @@
 package pl.pawelantonik.metronome.feature.main.presentation
 
 import android.content.Context
+import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,10 +25,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import pl.pawelantonik.metronome.MetronomeService
 import pl.pawelantonik.metronome.R
 import pl.pawelantonik.metronome.feature.main.SoundPlayer
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
@@ -38,6 +41,7 @@ import pl.pawelantonik.metronome.ui.theme.AppTheme
 fun MetronomeScreen(
   soundPlayer: SoundPlayer,
 ) {
+  val context = LocalContext.current
   val mainViewModel: MainViewModel = hiltViewModel()
   mainViewModel.load()
 
@@ -86,11 +90,29 @@ fun MetronomeScreen(
           }
         }
 
+        var isServiceRunning by remember {
+          mutableStateOf(false)
+        }
+
         MainRoundButton(
           isRunning = mainUiState.isRunning,
           durationMillis = mainUiState.intervalMs,
           onClick = { isRunning ->
-            mainViewModel.onUpdateIsRunning(isRunning)
+//            mainViewModel.onUpdateIsRunning(isRunning)
+
+            if (isServiceRunning) {
+              Intent(context, MetronomeService::class.java).also {
+                it.action = MetronomeService.ServiceActions.STOP.toString()
+                context.startService(it)
+                isServiceRunning = false
+              }
+            } else {
+              Intent(context, MetronomeService::class.java).also {
+                it.action = MetronomeService.ServiceActions.START.toString()
+                context.startService(it)
+                isServiceRunning = true
+              }
+            }
           },
         )
 

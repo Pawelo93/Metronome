@@ -1,6 +1,9 @@
 package pl.pawelantonik.metronome
 
+import android.os.Build
+import android.os.Bundle
 import androidx.compose.runtime.Composable
+import androidx.core.app.ActivityCompat
 import dagger.hilt.android.AndroidEntryPoint
 import pl.pawelantonik.metronome.common.BaseActivity
 import pl.pawelantonik.metronome.feature.main.MetronomeSoundPlayer
@@ -12,6 +15,18 @@ import javax.inject.Inject
 class MainActivity : BaseActivity() {
   @Inject
   lateinit var metronomeSoundPlayer: MetronomeSoundPlayer
+
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+      ActivityCompat.requestPermissions(
+        this,
+        arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
+        0,
+      )
+    }
+  }
 
   @Composable
   override fun SetContent() {
