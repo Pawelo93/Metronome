@@ -1,96 +1,146 @@
 package pl.pawelantonik.metronome.feature.main.presentation
 
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import pl.pawelantonik.metronome.common.BaseViewModel
-import pl.pawelantonik.metronome.feature.main.presentation.MainViewModel.ChangeBpmValue.*
+import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
+import pl.pawelantonik.metronome.feature.main.domain.TickSettings
+import pl.pawelantonik.metronome.feature.main.domain.TickSettingsRepository
+import pl.pawelantonik.metronome.feature.main.domain.TimeCounter
+import pl.pawelantonik.metronome.feature.main.presentation.counter.BpmDeltaValue
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor() : BaseViewModel() {
+class MainViewModel @Inject constructor(
+  private val timeCounter: TimeCounter,
+  private val bpmRepository: BpmRepository,
+  private val tickSettingsRepository: TickSettingsRepository,
+) : BaseViewModel() {
 
   private val _uiState = MutableStateFlow(UiState.initial())
   val uiState = _uiState.asStateFlow()
 
-  fun onChangeBpm(newValue: Int) {
+  private val _tick = MutableStateFlow(TickState.disabled())
+  val tick = _tick.asStateFlow()
+
+  private var counterJob: Job? = null
+
+  fun load() {
+    val bpm = bpmRepository.getBpm()
+    val bpmDelta = bpmRepository.getDelta()
+    val selectedBpmDelta = BpmDeltaValue.entries.firstOrNull { it.value == bpmDelta }
     _uiState.update {
-      it.copy(bpm = newValue)
+      it.copy(
+        bpm = bpm,
+        selectedBpmDeltaValue = selectedBpmDelta ?: BpmDeltaValue.FIVE,
+      )
+    }
+
+    tickSettingsRepository.get()?.let { tickSettings ->
+      onUpdateTickSettings(tickSettings)
     }
   }
 
-  fun onChangeBpm(changeDir: BpmChangeDir) {
-    _uiState.update {
-      val currentBpm = _uiState.value.bpm
-      val changeValue = _uiState.value.selectedChangeBpmValue.value
-      val newBpm = when (changeDir) {
-        BpmChangeDir.UP -> currentBpm + changeValue
-        BpmChangeDir.DOWN -> currentBpm - changeValue
-      }
+  fun onChangeBpmByAdding() {
+    onChangeBpm(_uiState.value.bpm + _uiState.value.selectedBpmDelta)
+  }
 
-      it.copy(bpm = newBpm)
+  fun onChangeBpmBySubtract() {
+    onChangeBpm(_uiState.value.bpm - _uiState.value.selectedBpmDelta)
+  }
+
+  fun onChangeBpm(newBpm: Int) {
+    bpmRepository.saveBpm(newBpm)
+    _uiState.update { it.copy(bpm = newBpm) }
+
+    if (_uiState.value.isRunning) {
+      startCounter()
     }
   }
 
-  fun onChangeBpmValue(changeBpmValue: ChangeBpmValue) {
-    _uiState.update {
-      it.copy(selectedChangeBpmValue = changeBpmValue)
-    }
+  fun onSelectBpmDeltaValue(bpmDeltaValue: BpmDeltaValue) {
+    bpmRepository.saveDelta(bpmDeltaValue.value)
+    _uiState.update { it.copy(selectedBpmDeltaValue = bpmDeltaValue) }
   }
 
-  fun startStop(isRunning: Boolean) {
+  fun onUpdateIsRunning(isRunning: Boolean) = viewModelScope.launch {
+    if (isRunning) {
+      startCounter()
+    } else {
+      stopCounter()
+    }
     _uiState.update { it.copy(isRunning = isRunning) }
   }
 
-  enum class BpmChangeDir {
-    UP,
-    DOWN,
+  fun onUpdateTickSettings(tickSettings: TickSettings?) {
+    tickSettingsRepository.save(tickSettings)
+    _tick.update { it.copy(tickSettings = tickSettings) }
   }
 
-  enum class ChangeBpmValue(val value: Int) {
-    ONE(1),
-    TWO(2),
-    FIVE(5),
-    TEN(10),
+  private fun startCounter() {
+    counterJob?.cancel()
+    counterJob = viewModelScope.launch {
+      _tick.update { it.copy(currentBit = 1) }
+      timeCounter.count(_uiState.value.intervalMs).collectLatest {
+        _tick.update { it.nextBeat() }
+      }
+    }
+  }
+
+  private fun stopCounter() {
+    counterJob?.cancel()
   }
 
   data class UiState(
     val isRunning: Boolean,
     val bpm: Int,
-    val selectedChangeBpmValue: ChangeBpmValue,
-    val changeBpmValues: List<ChangeBpmValue>,
-    val singleBar: SingleBar,
+    val selectedBpmDeltaValue: BpmDeltaValue,
+    val bpmDeltaValues: List<BpmDeltaValue>,
   ) {
     companion object {
       fun initial() = UiState(
         isRunning = false,
         bpm = 60,
-        selectedChangeBpmValue = TWO,
-        changeBpmValues = ChangeBpmValue.entries,
-        singleBar = SingleBar(1, 4),
+        selectedBpmDeltaValue = BpmDeltaValue.TWO,
+        bpmDeltaValues = BpmDeltaValue.entries,
+      )
+    }
+
+    val intervalMs: Long
+      get() = (60000.0 / bpm).toLong()
+
+    val selectedBpmDelta: Int
+      get() = this.selectedBpmDeltaValue.value
+  }
+
+  data class TickState(
+    val currentBit: Int,
+    val tickSettings: TickSettings?,
+  ) {
+    companion object {
+      fun disabled() = TickState(1, null)
+    }
+
+    fun nextBeat(): TickState {
+      return TickState(
+        currentBit = when (tickSettings != null) {
+          true -> when (currentBit < (tickSettings.bits)) {
+            true -> currentBit + 1
+            false -> 1
+          }
+          false -> currentBit + 1
+        } ,
+        tickSettings = tickSettings,
       )
     }
 
     val isAccentBeat: Boolean
-      get() = singleBar.currentBit == 1
-
-    val intervalMs: Long
-      get() = (60000.0 / bpm).toLong()
-  }
-}
-
-data class SingleBar(
-  val currentBit: Int = 1,
-  val allBits: Int = 4,
-) {
-  fun onBeat(): SingleBar {
-    return SingleBar(
-      currentBit = when (currentBit < allBits) {
-        true -> currentBit + 1
-        false -> 1
-      },
-      allBits = allBits,
-    )
+      get() = currentBit == 1
   }
 }
