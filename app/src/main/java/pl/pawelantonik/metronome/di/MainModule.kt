@@ -10,15 +10,20 @@ import pl.pawelantonik.metronome.feature.main.data.SharedPrefsBpmRepository
 import pl.pawelantonik.metronome.feature.main.data.SharedPrefsTickSettingsRepository
 import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
 import pl.pawelantonik.metronome.feature.main.domain.TickSettingsRepository
+import pl.pawelantonik.metronome.feature.service.data.InMemoryIsMetronomeRunningRepository
+import pl.pawelantonik.metronome.feature.service.domain.IsMetronomeRunningRepository
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class MainModule {
 
-  @Binds abstract fun bindSoundPlayer(timer: MetronomeSoundPlayer): SoundPlayer
+  @Binds @Singleton abstract fun bindSoundPlayer(timer: MetronomeSoundPlayer): SoundPlayer
 
-  @Binds abstract fun bindBpmRepository(bpmRepository: SharedPrefsBpmRepository): BpmRepository
+  @Binds @Singleton abstract fun bindBpmRepository(bpmRepository: SharedPrefsBpmRepository): BpmRepository
 
-  @Binds abstract fun bindTickSettingsRepository(tickSettingsRepository: SharedPrefsTickSettingsRepository): TickSettingsRepository
+  @Binds @Singleton abstract fun bindTickSettingsRepository(tickSettingsRepository: SharedPrefsTickSettingsRepository): TickSettingsRepository
+
+  @Binds @Singleton abstract fun bindIsMetronomeRunningRepository(isMetronomeRunningRepository: InMemoryIsMetronomeRunningRepository): IsMetronomeRunningRepository
 
 }

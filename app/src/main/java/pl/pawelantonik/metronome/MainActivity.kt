@@ -30,12 +30,13 @@ class MainActivity : BaseActivity() {
 
   @Composable
   override fun SetContent() {
-    metronomeSoundPlayer.init(this)
-
     AppTheme {
-      MetronomeScreen(
-        soundPlayer = metronomeSoundPlayer,
-      )
+      MetronomeScreen()
     }
+  }
+
+  override fun onDestroy() {
+    super.onDestroy()
+    metronomeSoundPlayer.release()
   }
 }

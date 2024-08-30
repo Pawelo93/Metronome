@@ -1,7 +1,6 @@
 package pl.pawelantonik.metronome.feature.main.presentation
 
 import android.content.Context
-import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,7 +14,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +28,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import pl.pawelantonik.metronome.MetronomeService
+import pl.pawelantonik.metronome.feature.service.MetronomeService
 import pl.pawelantonik.metronome.R
 import pl.pawelantonik.metronome.feature.main.SoundPlayer
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
@@ -38,15 +36,12 @@ import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MetronomeScreen(
-  soundPlayer: SoundPlayer,
-) {
+fun MetronomeScreen() {
   val context = LocalContext.current
   val mainViewModel: MainViewModel = hiltViewModel()
   mainViewModel.load()
 
   val mainUiState by mainViewModel.uiState.collectAsState()
-  val tickState by mainViewModel.tick.collectAsState()
 
   Scaffold(
     topBar = {
@@ -84,43 +79,18 @@ fun MetronomeScreen(
           onChangeBpmValue = { mainViewModel.onSelectBpmDeltaValue(it) }
         )
 
-        LaunchedEffect(tickState.currentBit) {
-          if (mainUiState.isRunning) {
-            soundPlayer.play(tickState.isAccentBeat)
-          }
-        }
-
-        var isServiceRunning by remember {
-          mutableStateOf(false)
-        }
-
         MainRoundButton(
           isRunning = mainUiState.isRunning,
           durationMillis = mainUiState.intervalMs,
-          onClick = { isRunning ->
-//            mainViewModel.onUpdateIsRunning(isRunning)
-
-            if (isServiceRunning) {
-              Intent(context, MetronomeService::class.java).also {
-                it.action = MetronomeService.ServiceActions.STOP.toString()
-                context.startService(it)
-                isServiceRunning = false
-              }
-            } else {
-              Intent(context, MetronomeService::class.java).also {
-                it.action = MetronomeService.ServiceActions.START.toString()
-                context.startService(it)
-                isServiceRunning = true
-              }
+          onClick = {
+            when (mainUiState.isRunning) {
+              true -> MetronomeService.getStopIntent(context)
+              false -> MetronomeService.getStartIntent(context)
+            }.also {
+              context.startService(it)
             }
           },
         )
-
-        DisposableEffect(Unit) {
-          onDispose {
-            soundPlayer.release()
-          }
-        }
 
         Spacer(modifier = Modifier.height(32.dp))
 
@@ -138,12 +108,12 @@ fun MetronomeScreen(
           )
         }
 
-        BottomOptions(
-          tickSettings = tickState.tickSettings,
-          onTickSettingsClicked = {
-            showTickSettingsDialog = true
-          }
-        )
+//        BottomOptions(
+//          tickSettings = tickState.tickSettings,
+//          onTickSettingsClicked = {
+//            showTickSettingsDialog = true
+//          }
+//        )
       }
     },
   )
@@ -153,17 +123,6 @@ fun MetronomeScreen(
 @Composable
 fun MetronomeScreenPreview() {
   AppTheme {
-    MetronomeScreen(
-      soundPlayer = object : SoundPlayer {
-        override fun init(context: Context) {
-        }
-
-        override fun play(isAccentBeat: Boolean) {
-        }
-
-        override fun release() {
-        }
-      }
-    )
+    MetronomeScreen()
   }
 }

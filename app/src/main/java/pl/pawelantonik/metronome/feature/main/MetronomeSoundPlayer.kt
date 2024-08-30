@@ -5,12 +5,6 @@ import android.media.MediaPlayer
 import pl.pawelantonik.metronome.R
 import javax.inject.Inject
 
-interface SoundPlayer {
-  fun init(context: Context)
-  fun play(isAccentBeat: Boolean)
-  fun release()
-}
-
 class MetronomeSoundPlayer @Inject constructor() : SoundPlayer {
   private lateinit var baseSound: MediaPlayer
   private lateinit var accentSound: MediaPlayer
@@ -28,8 +22,12 @@ class MetronomeSoundPlayer @Inject constructor() : SoundPlayer {
   }
 
   override fun release() {
-    baseSound.release()
-    accentSound.release()
+    if (this::baseSound.isInitialized) {
+      baseSound.release()
+    }
+    if (this::accentSound.isInitialized) {
+      accentSound.release()
+    }
   }
 
   private fun playSound(mediaPlayer: MediaPlayer) {

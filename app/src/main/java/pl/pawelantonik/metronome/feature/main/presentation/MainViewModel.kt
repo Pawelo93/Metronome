@@ -2,7 +2,6 @@ package pl.pawelantonik.metronome.feature.main.presentation
 
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -12,24 +11,19 @@ import pl.pawelantonik.metronome.common.BaseViewModel
 import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
 import pl.pawelantonik.metronome.feature.main.domain.TickSettings
 import pl.pawelantonik.metronome.feature.main.domain.TickSettingsRepository
-import pl.pawelantonik.metronome.feature.main.domain.TimeCounter
 import pl.pawelantonik.metronome.feature.main.presentation.counter.BpmDeltaValue
+import pl.pawelantonik.metronome.feature.service.domain.IsMetronomeRunningRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-  private val timeCounter: TimeCounter,
   private val bpmRepository: BpmRepository,
   private val tickSettingsRepository: TickSettingsRepository,
+  private val isMetronomeRunningRepository: IsMetronomeRunningRepository,
 ) : BaseViewModel() {
 
   private val _uiState = MutableStateFlow(UiState.initial())
   val uiState = _uiState.asStateFlow()
-
-  private val _tick = MutableStateFlow(TickState.disabled())
-  val tick = _tick.asStateFlow()
-
-  private var counterJob: Job? = null
 
   fun load() {
     val bpm = bpmRepository.getBpm()
@@ -42,8 +36,10 @@ class MainViewModel @Inject constructor(
       )
     }
 
-    tickSettingsRepository.get()?.let { tickSettings ->
-      onUpdateTickSettings(tickSettings)
+    viewModelScope.launch {
+      isMetronomeRunningRepository.observe().collectLatest { isRunning ->
+        _uiState.update { it.copy(isRunning = isRunning) }
+      }
     }
   }
 
@@ -58,10 +54,6 @@ class MainViewModel @Inject constructor(
   fun onChangeBpm(newBpm: Int) {
     bpmRepository.saveBpm(newBpm)
     _uiState.update { it.copy(bpm = newBpm) }
-
-    if (_uiState.value.isRunning) {
-      startCounter()
-    }
   }
 
   fun onSelectBpmDeltaValue(bpmDeltaValue: BpmDeltaValue) {
@@ -69,32 +61,8 @@ class MainViewModel @Inject constructor(
     _uiState.update { it.copy(selectedBpmDeltaValue = bpmDeltaValue) }
   }
 
-  fun onUpdateIsRunning(isRunning: Boolean) = viewModelScope.launch {
-    if (isRunning) {
-      startCounter()
-    } else {
-      stopCounter()
-    }
-    _uiState.update { it.copy(isRunning = isRunning) }
-  }
-
   fun onUpdateTickSettings(tickSettings: TickSettings?) {
     tickSettingsRepository.save(tickSettings)
-    _tick.update { it.copy(tickSettings = tickSettings) }
-  }
-
-  private fun startCounter() {
-    counterJob?.cancel()
-    counterJob = viewModelScope.launch {
-      _tick.update { it.copy(currentBit = 1) }
-      timeCounter.count(_uiState.value.intervalMs).collectLatest {
-        _tick.update { it.nextBeat() }
-      }
-    }
-  }
-
-  private fun stopCounter() {
-    counterJob?.cancel()
   }
 
   data class UiState(
@@ -102,6 +70,7 @@ class MainViewModel @Inject constructor(
     val bpm: Int,
     val selectedBpmDeltaValue: BpmDeltaValue,
     val bpmDeltaValues: List<BpmDeltaValue>,
+//    val tickSettings: TickSettings?,
   ) {
     companion object {
       fun initial() = UiState(
@@ -109,38 +78,15 @@ class MainViewModel @Inject constructor(
         bpm = 60,
         selectedBpmDeltaValue = BpmDeltaValue.TWO,
         bpmDeltaValues = BpmDeltaValue.entries,
+//        tickSettings = null,
       )
     }
-
-    val intervalMs: Long
-      get() = (60000.0 / bpm).toLong()
 
     val selectedBpmDelta: Int
       get() = this.selectedBpmDeltaValue.value
-  }
 
-  data class TickState(
-    val currentBit: Int,
-    val tickSettings: TickSettings?,
-  ) {
-    companion object {
-      fun disabled() = TickState(1, null)
-    }
-
-    fun nextBeat(): TickState {
-      return TickState(
-        currentBit = when (tickSettings != null) {
-          true -> when (currentBit < (tickSettings.bits)) {
-            true -> currentBit + 1
-            false -> 1
-          }
-          false -> currentBit + 1
-        } ,
-        tickSettings = tickSettings,
-      )
-    }
-
-    val isAccentBeat: Boolean
-      get() = currentBit == 1
+    // doubles
+    val intervalMs: Long
+      get() = (60000.0 / bpm).toLong()
   }
 }

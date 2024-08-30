@@ -13,7 +13,6 @@ class TimeCounter @Inject constructor() {
   private val timeNowInMs: Long
     get() = System.nanoTime() / 1000000
 
-
   fun count(intervalMs: Long): Flow<Int> = flow {
     var count = 0
     currentIntervalMs = intervalMs
