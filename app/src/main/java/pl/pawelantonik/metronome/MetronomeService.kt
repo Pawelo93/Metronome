@@ -13,7 +13,10 @@ class MetronomeService : Service() {
 
   override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
     when (intent?.action) {
-      ServiceActions.START.toString() -> start()
+      ServiceActions.START.toString() -> {
+        start()
+        return START_STICKY
+      }
       ServiceActions.STOP.toString() -> stopSelf()
     }
     return super.onStartCommand(intent, flags, startId)
@@ -24,6 +27,7 @@ class MetronomeService : Service() {
       .setSmallIcon(R.drawable.ic_launcher_foreground)
       .setContentTitle("Metronome is running")
       .setContentText("Elapsed time: 00:50")
+      .setOngoing(true)
       .build()
 
     startForeground(1, notification)
