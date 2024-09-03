@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import pl.pawelantonik.metronome.feature.service.domain.IsMetronomeRunningRepository
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class InMemoryIsMetronomeRunningRepository @Inject constructor() : IsMetronomeRunningRepository {
   private var isRunning: Boolean = false
   private val _isRunningFlow = MutableStateFlow(isRunning)

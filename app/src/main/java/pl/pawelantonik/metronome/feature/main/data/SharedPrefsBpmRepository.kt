@@ -3,11 +3,12 @@ package pl.pawelantonik.metronome.feature.main.data
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class SharedPrefsBpmRepository @Inject constructor(
   private val sharedPreferences: SharedPreferences,
 ) : BpmRepository {
@@ -31,7 +32,7 @@ class SharedPrefsBpmRepository @Inject constructor(
   }
 
   override fun observeBpm(): Flow<Int> {
-    return _bpmFlow.asStateFlow()
+    return _bpmFlow
   }
 
   override fun getDelta(): Int {
