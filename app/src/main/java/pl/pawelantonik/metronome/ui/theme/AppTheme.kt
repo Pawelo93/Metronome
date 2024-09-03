@@ -160,17 +160,14 @@ fun AppTheme(
   CompositionLocalProvider(
     LocalExtendedColors provides colors,
     LocalExtendedSpacings provides spacings,
+    LocalExtendedFonts provides fonts,
   ) {
-    CompositionLocalProvider(
-      LocalExtendedFonts provides fonts,
-    ) {
-      MaterialTheme(
-        colorScheme = simpleLightMaterialColorPalette,
-        shapes = simpleShapes,
-        typography = simpleFonts,
-        content = content,
-      )
-    }
+    MaterialTheme(
+      colorScheme = simpleLightMaterialColorPalette,
+      shapes = simpleShapes,
+      typography = simpleFonts,
+      content = content,
+    )
   }
 
 }
