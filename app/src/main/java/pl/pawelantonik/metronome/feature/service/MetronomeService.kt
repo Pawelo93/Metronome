@@ -79,7 +79,6 @@ class MetronomeService : Service() {
     val notification = NotificationCompat.Builder(this, "running_metronome")
       .setSmallIcon(R.drawable.ic_launcher_foreground)
       .setContentTitle("Metronome is running")
-      .setContentText("Elapsed time: 00:50")
       .setOngoing(true)
       .setSilent(true)
       .setContentIntent(startAppPendingIntent)

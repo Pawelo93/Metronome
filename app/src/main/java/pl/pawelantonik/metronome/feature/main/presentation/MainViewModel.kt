@@ -9,8 +9,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.pawelantonik.metronome.common.BaseViewModel
 import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
-import pl.pawelantonik.metronome.feature.main.domain.TickSettings
-import pl.pawelantonik.metronome.feature.main.domain.TickSettingsRepository
 import pl.pawelantonik.metronome.feature.main.presentation.counter.BpmDeltaValue
 import pl.pawelantonik.metronome.feature.service.domain.IsMetronomeRunningRepository
 import javax.inject.Inject
@@ -18,7 +16,6 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
   private val bpmRepository: BpmRepository,
-  private val tickSettingsRepository: TickSettingsRepository,
   private val isMetronomeRunningRepository: IsMetronomeRunningRepository,
 ) : BaseViewModel() {
 
@@ -59,10 +56,6 @@ class MainViewModel @Inject constructor(
   fun onSelectBpmDeltaValue(bpmDeltaValue: BpmDeltaValue) {
     bpmRepository.saveDelta(bpmDeltaValue.value)
     _uiState.update { it.copy(selectedBpmDeltaValue = bpmDeltaValue) }
-  }
-
-  fun onUpdateTickSettings(tickSettings: TickSettings?) {
-    tickSettingsRepository.save(tickSettings)
   }
 
   data class UiState(

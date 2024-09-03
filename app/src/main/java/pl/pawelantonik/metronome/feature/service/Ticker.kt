@@ -35,13 +35,14 @@ class Ticker @Inject constructor(
     counterJob?.cancel()
     counterJob = coroutineScope.launch {
       val settings = tickSettingsRepository.get()
-      val bpm = bpmRepository.getBpm()
-      _tickState.update { TickState(1, settings) }
+      bpmRepository.observeBpm().collectLatest { bpm ->
+        _tickState.update { TickState(1, settings) }
 
-      timeCounter.count(bpm.intervalMs).collectLatest {
-        _tickState.update { it.nextBeat() }
-        soundPlayer.play(_tickState.value.isAccentBeat)
-        println("SOUND - isAccent ${_tickState.value.isAccentBeat}")
+        timeCounter.count(bpm.intervalMs).collectLatest {
+          _tickState.update { it.nextBeat() }
+          soundPlayer.play(_tickState.value.isAccentBeat)
+          println("SOUND - isAccent ${_tickState.value.isAccentBeat}")
+        }
       }
     }
   }

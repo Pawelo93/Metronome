@@ -1,4 +1,4 @@
-package pl.pawelantonik.metronome.feature.main.presentation
+package pl.pawelantonik.metronome.feature.tick.presentation
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable

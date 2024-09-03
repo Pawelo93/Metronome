@@ -1,6 +1,5 @@
 package pl.pawelantonik.metronome.feature.main.presentation
 
-import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,7 +12,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,10 +26,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import pl.pawelantonik.metronome.feature.service.MetronomeService
 import pl.pawelantonik.metronome.R
-import pl.pawelantonik.metronome.feature.main.SoundPlayer
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
+import pl.pawelantonik.metronome.feature.service.MetronomeService
+import pl.pawelantonik.metronome.feature.tick.presentation.TickSettingsView
+import pl.pawelantonik.metronome.feature.tick.presentation.TickSettingsViewModel
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -39,7 +38,9 @@ import pl.pawelantonik.metronome.ui.theme.AppTheme
 fun MetronomeScreen() {
   val context = LocalContext.current
   val mainViewModel: MainViewModel = hiltViewModel()
+  val tickSettingsViewModel: TickSettingsViewModel = hiltViewModel()
   mainViewModel.load()
+  tickSettingsViewModel.load()
 
   val mainUiState by mainViewModel.uiState.collectAsState()
 
@@ -102,18 +103,18 @@ fun MetronomeScreen() {
           TickSettingsDialog(
             onDismiss = { showTickSettingsDialog = false },
             onOptionSelected = { option ->
-              mainViewModel.onUpdateTickSettings(option)
+              tickSettingsViewModel.onUpdateTickSettings(option)
               showTickSettingsDialog = false
             }
           )
         }
 
-//        BottomOptions(
-//          tickSettings = tickState.tickSettings,
-//          onTickSettingsClicked = {
-//            showTickSettingsDialog = true
-//          }
-//        )
+        TickSettingsView(
+          tickSettingsViewModel = tickSettingsViewModel,
+          onTickSettingsClicked = {
+            showTickSettingsDialog = true
+          }
+        )
       }
     },
   )
