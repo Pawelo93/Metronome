@@ -1,6 +1,5 @@
 package pl.pawelantonik.metronome.feature.main.presentation
 
-import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -17,11 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -59,7 +55,7 @@ fun MainRoundButton(
           durationMillis = durationMillis.toInt(),
           minPulseSize = minPulseSize,
           maxPulseSize = maxPulseSize,
-          centreColor = Color(0.129f, 0.588f, 0.953f, 1.0f),
+          centreColor = AppTheme.colors.accentGreen,
           pulseColor = Color(0.702f, 0.78f, 0.839f, 1.0f),
         )
       }
@@ -92,8 +88,8 @@ fun PulseLoadingWithState(
   durationMillis: Int = 1000,
   maxPulseSize: Float = 300f,
   minPulseSize: Float = 50f,
-  pulseColor: Color = Color(234, 240, 246),
-  centreColor: Color = Color(66, 133, 244),
+  pulseColor: Color,
+  centreColor: Color,
 ) {
   val infiniteTransition = rememberInfiniteTransition(label = "infiniteTransition")
   val size by infiniteTransition.animateFloat(

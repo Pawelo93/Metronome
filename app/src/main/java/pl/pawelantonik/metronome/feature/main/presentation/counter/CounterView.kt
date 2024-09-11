@@ -82,7 +82,7 @@ fun CounterView(
             .then(
               if (valueChange.value == selectedNumber) {
                 Modifier.background(
-                  color = AppTheme.colors.primary,
+                  color = AppTheme.colors.accentGreen,
                   shape = CircleShape,
                 )
               } else {
@@ -91,6 +91,12 @@ fun CounterView(
             )
             .size(30.dp)
             .wrapContentSize(),
+          style = AppTheme.typography.basic.copy(
+            color = when (valueChange.value == selectedNumber) {
+              true -> AppTheme.colors.primary
+              false -> AppTheme.colors.onPrimary
+            }
+          ),
           text = valueChange.value.toString(),
         )
       }

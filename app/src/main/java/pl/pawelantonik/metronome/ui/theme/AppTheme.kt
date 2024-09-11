@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color.Companion.Transparent
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pl.pawelantonik.metronome.R
 
 object AppTheme {
   val colors: ExtendedColors
@@ -28,15 +30,7 @@ object AppTheme {
 }
 
 private val colors: ExtendedColors
-  get() = ExtendedColors(
-    primary = Purple40,
-    onPrimary = White,
-    transparent = Transparent,
-    defaultText = Black600,
-    secondaryText = Grey900,
-    background = Background,
-    error = Red500,
-  )
+  get() = darkExtendedColors
 
 private val fonts: ExtendedFonts
   @Composable
@@ -104,9 +98,9 @@ private val spacings: ExtendedSpacings
   )
 
 private val simpleLightMaterialColorPalette = lightColorScheme(
-  primary = Purple40,
-  onPrimary = Black600,
-  secondary = Purple80,
+  primary = PrimaryColor,
+  onPrimary = White,
+  secondary = SecondaryColor,
   onSecondary = Black600,
   background = Background,
   onBackground = White,
