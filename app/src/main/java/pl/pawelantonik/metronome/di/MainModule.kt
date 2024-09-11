@@ -4,6 +4,8 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import pl.pawelantonik.metronome.feature.counter.data.SharedPrefsCounterSettingsRepository
+import pl.pawelantonik.metronome.feature.counter.domain.CounterSettingsRepository
 import pl.pawelantonik.metronome.feature.main.MetronomeSoundPlayer
 import pl.pawelantonik.metronome.feature.main.SoundPlayer
 import pl.pawelantonik.metronome.feature.main.data.SharedPrefsBpmRepository
@@ -24,6 +26,8 @@ abstract class MainModule {
   @Binds abstract fun bindBpmRepository(bpmRepository: SharedPrefsBpmRepository): BpmRepository
 
   @Binds abstract fun bindTickSettingsRepository(tickSettingsRepository: SharedPrefsTickSettingsRepository): TickSettingsRepository
+
+  @Binds abstract fun bindCounterSettingsRepository(counterSettingsRepository: SharedPrefsCounterSettingsRepository): CounterSettingsRepository
 
   @Binds abstract fun bindIsMetronomeRunningRepository(isMetronomeRunningRepository: InMemoryIsMetronomeRunningRepository): IsMetronomeRunningRepository
 

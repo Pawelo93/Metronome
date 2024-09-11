@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import pl.pawelantonik.metronome.ui.extensions.clickableWithoutRipple
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
@@ -33,16 +34,17 @@ import pl.pawelantonik.metronome.ui.theme.AppTheme
 fun MainRoundButton(
   isRunning: Boolean,
   durationMillis: Long,
+  counterText: String?,
   onClick: (isRunning: Boolean) -> Unit,
 ) {
   val minPulseSize = 150f
-  val maxPulseSize = 300f
+  val maxPulseSize = 280f
 
   var lastDuration by remember { mutableLongStateOf(-1L) }
 
   Box(
     modifier = Modifier
-      .size(300.dp)
+      .size(maxPulseSize.dp)
       .clickableWithoutRipple { onClick(isRunning.not()) }
   ) {
     if (isRunning) {
@@ -72,10 +74,17 @@ fun MainRoundButton(
     }
 
     Text(
-      style = MaterialTheme.typography.headlineMedium.copy(color = MaterialTheme.colorScheme.onPrimary),
+      style = AppTheme.typography.headingH1.copy(color = MaterialTheme.colorScheme.onPrimary,
+        fontSize = when (counterText != null && isRunning) {
+          true -> 40.sp
+          false -> AppTheme.typography.headingH1.fontSize
+        }),
       modifier = Modifier.align(Alignment.Center),
       text = when (isRunning) {
-        true -> "Stop"
+        true -> when (counterText != null) {
+          true -> counterText
+          false -> "Stop"
+        }
         false -> "Start"
       },
     )
@@ -157,6 +166,7 @@ fun MainRoundButtonEnabledPreview() {
     MainRoundButton(
       isRunning = true,
       durationMillis = 0,
+      counterText = null,
       onClick = {},
     )
   }
@@ -169,6 +179,7 @@ fun MainRoundButtonDisabledPreview() {
     MainRoundButton(
       isRunning = false,
       durationMillis = 0,
+      counterText = null,
       onClick = {},
     )
   }

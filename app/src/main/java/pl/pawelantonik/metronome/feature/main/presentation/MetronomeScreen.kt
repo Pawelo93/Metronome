@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.pawelantonik.metronome.R
+import pl.pawelantonik.metronome.feature.counter.presentation.CounterViewModel
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
 import pl.pawelantonik.metronome.feature.service.MetronomeService
 import pl.pawelantonik.metronome.feature.tick.presentation.TickSettingsView
@@ -38,11 +39,14 @@ import pl.pawelantonik.metronome.ui.theme.AppTheme
 fun MetronomeScreen() {
   val context = LocalContext.current
   val mainViewModel: MainViewModel = hiltViewModel()
+  val counterViewModel: CounterViewModel = hiltViewModel()
   val tickSettingsViewModel: TickSettingsViewModel = hiltViewModel()
   mainViewModel.load()
   tickSettingsViewModel.load()
+  counterViewModel.load()
 
   val mainUiState by mainViewModel.uiState.collectAsState()
+  val counterUiState by counterViewModel.uiState.collectAsState()
 
   Scaffold(
     topBar = {
@@ -53,9 +57,9 @@ fun MetronomeScreen() {
         ),
         title = {
           Image(
-            modifier = Modifier.size(56.dp),
+            modifier = Modifier.size(46.dp),
             painter = painterResource(id = R.drawable.music_logo),
-            colorFilter = ColorFilter.tint(AppTheme.colors.primary),
+            colorFilter = ColorFilter.tint(AppTheme.colors.onPrimary),
             contentDescription = null,
           )
         },
@@ -68,7 +72,7 @@ fun MetronomeScreen() {
           .fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
       ) {
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         CounterView(
           selectedNumber = mainUiState.selectedBpmDeltaValue.value,
@@ -83,6 +87,11 @@ fun MetronomeScreen() {
         MainRoundButton(
           isRunning = mainUiState.isRunning,
           durationMillis = mainUiState.intervalMs,
+          // TODO change this
+          counterText = when (counterUiState.isCounterEnabled) {
+            true -> counterUiState.counterText
+            false -> null
+          },
           onClick = {
             when (mainUiState.isRunning) {
               true -> MetronomeService.getStopIntent(context)
@@ -92,8 +101,6 @@ fun MetronomeScreen() {
             }
           },
         )
-
-        Spacer(modifier = Modifier.height(32.dp))
 
         var showTickSettingsDialog by remember {
           mutableStateOf(false)
@@ -111,8 +118,12 @@ fun MetronomeScreen() {
 
         TickSettingsView(
           tickSettingsViewModel = tickSettingsViewModel,
+          counterViewModel = counterViewModel,
           onTickSettingsClicked = {
             showTickSettingsDialog = true
+          },
+          onCounterSettingsClicked = {
+            counterViewModel.toggleCounter()
           }
         )
       }

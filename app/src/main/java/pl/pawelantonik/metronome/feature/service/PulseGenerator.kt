@@ -26,6 +26,7 @@ data class Pulse(
 
 interface PulseGenerator {
   fun start(): Flow<Pulse?>
+  fun observe(): Flow<Pulse?>
   fun stop()
 }
 
@@ -43,11 +44,11 @@ class PulseGeneratorImpl @Inject constructor(
   private val Int.intervalMs: Long
     get() = (60000.0 / this).toLong()
 
-  private val _isAccentFlow = MutableStateFlow<Pulse?>(null)
+  private val pulseFlow = MutableStateFlow<Pulse?>(null)
 
   override fun start(): Flow<Pulse?> {
     run()
-    return _isAccentFlow
+    return pulseFlow
   }
 
   @SuppressLint("DiscouragedApi")
@@ -71,9 +72,9 @@ class PulseGeneratorImpl @Inject constructor(
 
                 // generate pulse
                 if (counterValue == 1) {
-                  _isAccentFlow.update { Pulse(true, counterValue) }
+                  pulseFlow.update { Pulse(true, counterValue) }
                 } else {
-                  _isAccentFlow.update { Pulse(false, counterValue) }
+                  pulseFlow.update { Pulse(false, counterValue) }
                 }
               }
             },
@@ -81,6 +82,10 @@ class PulseGeneratorImpl @Inject constructor(
           )
         }
     }
+  }
+
+  override fun observe(): Flow<Pulse?> {
+    return pulseFlow
   }
 
   override fun stop() {
@@ -91,6 +96,6 @@ class PulseGeneratorImpl @Inject constructor(
       scheduler?.shutdown()
     }
 
-    _isAccentFlow.value = null
+    pulseFlow.value = null
   }
 }

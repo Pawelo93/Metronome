@@ -21,7 +21,6 @@ import pl.pawelantonik.metronome.feature.main.presentation.SwipeValueSelector
 import pl.pawelantonik.metronome.ui.extensions.clickableWithoutRipple
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
-
 @Composable
 fun CounterView(
   selectedNumber: Int,
@@ -89,7 +88,7 @@ fun CounterView(
                 Modifier
               }
             )
-            .size(30.dp)
+            .size(24.dp)
             .wrapContentSize(),
           style = AppTheme.typography.basic.copy(
             color = when (valueChange.value == selectedNumber) {
