@@ -9,22 +9,25 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import pl.pawelantonik.metronome.feature.main.domain.TickSettings
+import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @Composable
-fun TickSettingsDialog(onDismiss: () -> Unit, onOptionSelected: (TickSettings?) -> Unit) {
+fun TickSettingsDialog(
+  onDismiss: () -> Unit,
+  onOptionSelected: (AccentSettings?) -> Unit,
+) {
   AlertDialog(
     onDismissRequest = onDismiss,
     title = { Text(text = "Choose a time signature", style = AppTheme.typography.headingH3) },
     text = {
       Column {
         TickDialogTextButton(
-          TickSettings(4),
+          AccentSettings(4),
           onOptionSelected = onOptionSelected,
         )
         TickDialogTextButton(
-          TickSettings(3),
+          AccentSettings(3),
           onOptionSelected = onOptionSelected,
         )
         TickDialogTextButton(
@@ -45,17 +48,19 @@ fun TickSettingsDialog(onDismiss: () -> Unit, onOptionSelected: (TickSettings?) 
 
 @Composable
 private fun TickDialogTextButton(
-  tickSettings: TickSettings?,
-  onOptionSelected: (TickSettings?) -> Unit,
+  accentSettings: AccentSettings?,
+  onOptionSelected: (AccentSettings?) -> Unit,
 ) {
   TextButton(
     modifier = Modifier.fillMaxWidth(),
-    onClick = { onOptionSelected(tickSettings) }) {
+    onClick = { onOptionSelected(accentSettings) }) {
     Text(
-      when {
-        tickSettings != null -> tickSettings.toString()
+      text = when {
+        accentSettings != null -> accentSettings.toString()
         else -> "None"
-      }, style = AppTheme.typography.basicBold, color = AppTheme.colors.primary
+      },
+      style = AppTheme.typography.basicBold,
+      color = AppTheme.colors.primary
     )
   }
 }

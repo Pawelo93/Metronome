@@ -30,8 +30,8 @@ import pl.pawelantonik.metronome.R
 import pl.pawelantonik.metronome.feature.counter.presentation.CounterViewModel
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
 import pl.pawelantonik.metronome.feature.service.MetronomeService
-import pl.pawelantonik.metronome.feature.tick.presentation.TickSettingsView
-import pl.pawelantonik.metronome.feature.tick.presentation.TickSettingsViewModel
+import pl.pawelantonik.metronome.feature.settings.presentation.SettingsView
+import pl.pawelantonik.metronome.feature.settings.presentation.SettingsViewModel
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,13 +40,14 @@ fun MetronomeScreen() {
   val context = LocalContext.current
   val mainViewModel: MainViewModel = hiltViewModel()
   val counterViewModel: CounterViewModel = hiltViewModel()
-  val tickSettingsViewModel: TickSettingsViewModel = hiltViewModel()
+  val settingsViewModel: SettingsViewModel = hiltViewModel()
   mainViewModel.load()
-  tickSettingsViewModel.load()
+  settingsViewModel.load()
   counterViewModel.load()
 
   val mainUiState by mainViewModel.uiState.collectAsState()
   val counterUiState by counterViewModel.uiState.collectAsState()
+  val settingsUiState by settingsViewModel.uiState.collectAsState()
 
   Scaffold(
     topBar = {
@@ -105,25 +106,45 @@ fun MetronomeScreen() {
         var showTickSettingsDialog by remember {
           mutableStateOf(false)
         }
+        var showAccelerateSettingsDialog by remember {
+          mutableStateOf(false)
+        }
 
         if (showTickSettingsDialog) {
           TickSettingsDialog(
             onDismiss = { showTickSettingsDialog = false },
             onOptionSelected = { option ->
-              tickSettingsViewModel.onUpdateTickSettings(option)
+              settingsViewModel.onUpdateTickSettings(option)
               showTickSettingsDialog = false
             }
           )
         }
 
-        TickSettingsView(
-          tickSettingsViewModel = tickSettingsViewModel,
+        if (showAccelerateSettingsDialog) {
+          AccelerateSettingsDialog(
+            currentAccelerateSettings = settingsUiState.accelerateSettingsOrDefault,
+            onDismiss = { showAccelerateSettingsDialog = false },
+            onOptionSelected = { option ->
+              settingsViewModel.onUpdateAccelerateSettings(option)
+              showAccelerateSettingsDialog = false
+            }
+          )
+        }
+
+        SettingsView(
+          settingsViewModel = settingsViewModel,
           counterViewModel = counterViewModel,
           onTickSettingsClicked = {
             showTickSettingsDialog = true
           },
           onCounterSettingsClicked = {
             counterViewModel.toggleCounter()
+          },
+          onAccelerateBpmClicked = {
+            showAccelerateSettingsDialog = true
+          },
+          onVibrationClicked = {
+            settingsViewModel.onToggleIsVibrationEnabled()
           }
         )
       }

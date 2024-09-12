@@ -63,7 +63,6 @@ class MainViewModel @Inject constructor(
     val bpm: Int,
     val selectedBpmDeltaValue: BpmDeltaValue,
     val bpmDeltaValues: List<BpmDeltaValue>,
-//    val tickSettings: TickSettings?,
   ) {
     companion object {
       fun initial() = UiState(
@@ -71,7 +70,6 @@ class MainViewModel @Inject constructor(
         bpm = 60,
         selectedBpmDeltaValue = BpmDeltaValue.TWO,
         bpmDeltaValues = BpmDeltaValue.entries,
-//        tickSettings = null,
       )
     }
 

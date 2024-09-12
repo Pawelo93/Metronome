@@ -1,10 +1,9 @@
-package pl.pawelantonik.metronome.feature.tick.presentation
+package pl.pawelantonik.metronome.feature.settings.presentation
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
@@ -24,15 +23,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.pawelantonik.metronome.R
-import pl.pawelantonik.metronome.feature.main.domain.TickSettings
+import pl.pawelantonik.metronome.feature.main.domain.AccelerateSettings
+import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @Composable
 fun BottomOptions(
-  tickSettings: TickSettings?,
+  accentSettings: AccentSettings?,
   isCounterEnabled: Boolean,
+  accelerateSettings: AccelerateSettings?,
+  isVibrationEnabled: Boolean,
   onTickSettingsClicked: () -> Unit,
   onCounterSettingsClicked: () -> Unit,
+  onAccelerateBpmClicked: () -> Unit,
+  onVibrationClicked: () -> Unit,
 ) {
   Column {
     Row(horizontalArrangement = Arrangement.Center) {
@@ -40,8 +44,8 @@ fun BottomOptions(
         modifier = Modifier.padding(start = 24.dp, end = 8.dp),
         optionItemState = OptionItemState(
           name = "Accent",
-          text = tickSettings?.toString() ?: "Off",
-          isEnabledIconVisible = tickSettings != null,
+          text = accentSettings?.toString() ?: "Off",
+          isEnabledIconVisible = accentSettings != null,
         ),
         onClick = onTickSettingsClicked,
       )
@@ -56,33 +60,32 @@ fun BottomOptions(
           },
           isEnabledIconVisible = isCounterEnabled,
         ),
-        onClick = { onCounterSettingsClicked() },
+        onClick = onCounterSettingsClicked,
       )
     }
 
-    // TODO add logic
     Row(horizontalArrangement = Arrangement.Center) {
       AnimatedOptionItem(
         modifier = Modifier.padding(start = 24.dp, end = 8.dp),
         optionItemState = OptionItemState(
-          name = "Accelerate",
-          text = tickSettings?.toString() ?: "Off",
-          isEnabledIconVisible = tickSettings != null,
+          name = "Accelerate bpm",
+          text = accelerateSettings?.toString() ?: "Off",
+          isEnabledIconVisible = accelerateSettings != null,
         ),
-        onClick = onTickSettingsClicked,
+        onClick = onAccelerateBpmClicked,
       )
 
       AnimatedOptionItem(
         modifier = Modifier.padding(start = 8.dp, end = 24.dp),
         optionItemState = OptionItemState(
           name = "Vibration",
-          text = when (isCounterEnabled) {
+          text = when (isVibrationEnabled) {
             true -> "On"
             false -> "Off"
           },
-          isEnabledIconVisible = isCounterEnabled,
+          isEnabledIconVisible = isVibrationEnabled,
         ),
-        onClick = { onCounterSettingsClicked() },
+        onClick = onVibrationClicked,
       )
     }
   }
@@ -181,8 +184,12 @@ private fun OptionItem(
 fun BottomOptionsPreview() {
   AppTheme {
     BottomOptions(
-      TickSettings(2),
+      AccentSettings(2),
       false,
+      accelerateSettings = null,
+      isVibrationEnabled = true,
+      {},
+      {},
       {},
       {},
     )

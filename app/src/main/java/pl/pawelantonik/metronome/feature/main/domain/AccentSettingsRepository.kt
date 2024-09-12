@@ -2,13 +2,13 @@ package pl.pawelantonik.metronome.feature.main.domain
 
 import kotlinx.coroutines.flow.Flow
 
-interface TickSettingsRepository {
-  fun get(): TickSettings?
-  fun observe(): Flow<TickSettings?>
-  fun save(tickSettings: TickSettings?)
+interface AccentSettingsRepository {
+  fun get(): AccentSettings?
+  fun observe(): Flow<AccentSettings?>
+  fun save(accentSettings: AccentSettings?)
 }
 
-data class TickSettings(
+data class AccentSettings(
   val bits: Int,
 ) {
   override fun toString(): String {

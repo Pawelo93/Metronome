@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
-import pl.pawelantonik.metronome.feature.main.domain.TickSettingsRepository
+import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
 import java.util.TimerTask
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
@@ -33,7 +33,7 @@ interface PulseGenerator {
 @Singleton
 class PulseGeneratorImpl @Inject constructor(
   private val bpmRepository: BpmRepository,
-  private val tickSettingsRepository: TickSettingsRepository,
+  private val accentSettingsRepository: AccentSettingsRepository,
 ) : PulseGenerator {
 
   private var scheduler: ScheduledExecutorService? = null
@@ -56,7 +56,7 @@ class PulseGeneratorImpl @Inject constructor(
     job?.cancel()
 
     job = coroutineScope.launch {
-      tickSettingsRepository.observe()
+      accentSettingsRepository.observe()
         .combine(bpmRepository.observeBpm()) { settings, bpm -> Pair(settings, bpm) }
         .collectLatest { (settings, bpm) ->
           stop()
