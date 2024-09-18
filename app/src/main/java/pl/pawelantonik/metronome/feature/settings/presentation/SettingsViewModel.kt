@@ -36,12 +36,23 @@ class SettingsViewModel @Inject constructor(
 
   fun onUpdateTickSettings(accentSettings: AccentSettings?) {
     accentSettingsRepository.save(accentSettings)
-    _uiState.update { it.copy(accentSettings = accentSettings) }
+    var newState = _uiState.value
+    if (accentSettings == null) {
+      accelerationSwitch.switch(null)
+      newState = newState.copy(accelerateSettings = null)
+    }
+    _uiState.update { newState.copy(accentSettings = accentSettings) }
   }
 
   fun onUpdateAccelerateSettings(accelerateSettings: AccelerateSettings?) {
     accelerationSwitch.switch(accelerateSettings)
-    _uiState.update { it.copy(accelerateSettings = accelerateSettings) }
+    val accentSettings = accentSettingsRepository.get()
+    _uiState.update {
+      it.copy(
+        accelerateSettings = accelerateSettings,
+        accentSettings = accentSettings,
+      )
+    }
   }
 
   fun onToggleIsVibrationEnabled() {
