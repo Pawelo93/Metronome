@@ -58,7 +58,7 @@ class MainViewModel @Inject constructor(
   }
 
   fun onChangeBpm(newBpm: Int) {
-//    bpmSaver.save(newBpm)
+    bpmSaver.save(newBpm)
   }
 
   fun onSelectBpmDeltaValue(bpmDeltaValue: BpmDeltaValue) {

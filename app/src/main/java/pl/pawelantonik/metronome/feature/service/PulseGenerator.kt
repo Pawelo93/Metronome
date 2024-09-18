@@ -1,6 +1,7 @@
 package pl.pawelantonik.metronome.feature.service
 
 import android.annotation.SuppressLint
+import android.util.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
@@ -11,11 +12,6 @@ import kotlinx.coroutines.launch
 import pl.pawelantonik.metronome.feature.counter.domain.BpmObserver
 import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
 import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
-import java.util.TimerTask
-import java.util.concurrent.Executors
-import java.util.concurrent.ScheduledExecutorService
-import java.util.concurrent.ScheduledFuture
-import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,9 +31,6 @@ class PulseGeneratorImpl @Inject constructor(
   private val bpmObserver: BpmObserver,
   private val accentSettingsRepository: AccentSettingsRepository,
 ) : PulseGenerator {
-
-  private var scheduler: ScheduledExecutorService? = null
-  private var scheduledFuture: ScheduledFuture<*>? = null
   private val coroutineScope = MainScope()
   private var job: Job? = null
 
@@ -45,6 +38,9 @@ class PulseGeneratorImpl @Inject constructor(
     get() = (60000.0 / this).toLong()
 
   private val pulseFlow = MutableStateFlow<Pulse?>(null)
+
+  private var runnerBackgroundThread: Thread? = null
+  private var isRunning = true
 
   override fun start(): Flow<Pulse?> {
     run()
@@ -57,7 +53,7 @@ class PulseGeneratorImpl @Inject constructor(
     job = coroutineScope.launch {
       accentSettingsRepository.observe()
         .collectLatest { settings ->
-          counterBody(settings)
+          runnerBlock(settings)
         }
     }
   }
@@ -67,45 +63,48 @@ class PulseGeneratorImpl @Inject constructor(
   }
 
   override fun stop() {
-    if (scheduledFuture?.isCancelled == false) {
-      scheduledFuture?.cancel(true)
-    }
-    if (scheduler?.isShutdown == false) {
-      scheduler?.shutdown()
-    }
+    isRunning = false
+
+    runnerBackgroundThread?.join()
+    runnerBackgroundThread = null
 
     pulseFlow.value = null
   }
 
   @SuppressLint("DiscouragedApi")
-  private fun counterBody(settings: AccentSettings?) {
-    val bpm = bpmObserver.get()
-    println("HERE ### bpm $bpm")
+  private fun runnerBlock(settings: AccentSettings?) {
     stop()
     var counterValue = 0
-    scheduler = Executors.newScheduledThreadPool(1)
-    scheduledFuture = scheduler?.scheduleAtFixedRate(
-      object : TimerTask() {
-        override fun run() {
-          counterValue++
-          if (settings != null && counterValue > settings.bits) {
-            counterValue = 1
+
+    isRunning = true
+    runnerBackgroundThread = Thread {
+      var currentTime = System.currentTimeMillis()
+      while (isRunning) {
+        try {
+          val bpm = bpmObserver.get()
+
+          if (currentTime + bpm.intervalMs <= System.currentTimeMillis() || counterValue == 0) {
+            if (counterValue > 0) {
+              currentTime += bpm.intervalMs
+            }
+            counterValue++
+
+            if (settings != null && counterValue > settings.bits) {
+              counterValue = 1
+            }
+
+            if (counterValue == 1) {
+              pulseFlow.update { Pulse(true, counterValue) }
+            } else {
+              pulseFlow.update { Pulse(false, counterValue) }
+            }
           }
 
-          // generate pulse
-          if (counterValue == 1) {
-            pulseFlow.update { Pulse(true, counterValue) }
-          } else {
-            pulseFlow.update { Pulse(false, counterValue) }
-          }
-
-          // check if bpm changed
-          if (bpm != bpmObserver.get()) {
-            counterBody(settings)
-          }
+          Thread.sleep(0, 100)
+        } catch (e: InterruptedException) {
+          Log.e("ThreadExample", "Thread interrupted", e)
         }
-      },
-      0, bpm.intervalMs, TimeUnit.MILLISECONDS,
-    )
+      }
+    }.apply { start() }
   }
 }

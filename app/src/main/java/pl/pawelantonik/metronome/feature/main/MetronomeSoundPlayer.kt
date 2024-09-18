@@ -14,6 +14,9 @@ class MetronomeSoundPlayer @Inject constructor() : SoundPlayer {
   override fun init(context: Context) {
     baseSound = MediaPlayer.create(context, R.raw.sound_1_others)
     accentSound = MediaPlayer.create(context, R.raw.sound_1_first)
+
+    baseSound.seekTo(0)
+    accentSound.seekTo(0)
   }
 
   override fun play(isAccentBeat: Boolean) {

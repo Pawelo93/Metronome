@@ -14,15 +14,10 @@ import javax.inject.Inject
 class Ticker @Inject constructor(
   private val pulseGenerator: PulseGenerator,
   private val soundPlayer: SoundPlayer,
-  @ApplicationContext private val context: Context,
 ) {
 
   private val coroutineScope = MainScope()
   private var job: Job? = null
-
-  init {
-    soundPlayer.init(context)
-  }
 
   fun start() {
     job?.cancel()
@@ -34,14 +29,14 @@ class Ticker @Inject constructor(
     }
   }
 
+  fun stop() {
+    job?.cancel()
+    pulseGenerator.stop()
+  }
+
   private suspend fun <T : Any> Flow<T?>.collectLatestNotNull(action: suspend (T) -> Unit) {
     this.filterNotNull().collectLatest { value ->
       action(value)
     }
-  }
-
-  fun stop() {
-    job?.cancel()
-    pulseGenerator.stop()
   }
 }

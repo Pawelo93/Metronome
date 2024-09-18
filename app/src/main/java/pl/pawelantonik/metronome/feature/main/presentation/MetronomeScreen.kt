@@ -130,7 +130,9 @@ fun MetronomeScreen() {
         if (showAccelerateSettingsDialog) {
           AccelerateSettingsDialog(
             currentAccelerateSettings = settingsUiState.accelerateSettingsOrDefault,
-            onDismiss = { showAccelerateSettingsDialog = false },
+            onDismiss = {
+              showAccelerateSettingsDialog = false
+            },
             onOptionSelected = { option ->
               settingsViewModel.onUpdateAccelerateSettings(option)
               showAccelerateSettingsDialog = false

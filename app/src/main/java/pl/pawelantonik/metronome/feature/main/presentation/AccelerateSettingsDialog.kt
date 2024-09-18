@@ -51,14 +51,16 @@ fun AccelerateSettingsDialog(
       )
     },
     confirmButton = {
-      TextButton(onClick = {
-        onOptionSelected(
-          AccelerateSettings(
-            bpmAcceleration = selectedBpm,
-            barsCount = selectedBars,
+      TextButton(
+        onClick = {
+          onOptionSelected(
+            AccelerateSettings(
+              bpmAcceleration = selectedBpm,
+              barsCount = selectedBars,
+            )
           )
-        )
-      }) {
+        },
+      ) {
         Text(
           style = AppTheme.typography.basic,
           color = AppTheme.colors.secondaryText,
@@ -67,8 +69,16 @@ fun AccelerateSettingsDialog(
       }
     },
     dismissButton = {
-      TextButton(onClick = onDismiss) {
-        Text("Cancel")
+      TextButton(
+        onClick = {
+          onOptionSelected(null)
+        },
+      ) {
+        Text(
+          style = AppTheme.typography.basic,
+          color = AppTheme.colors.secondaryText,
+          text = "Remove",
+        )
       }
     },
     modifier = Modifier.padding(vertical = 20.dp)
@@ -86,7 +96,7 @@ fun BpmSelector(
   var bpmExpanded by remember { mutableStateOf(false) }
   var barsExpanded by remember { mutableStateOf(false) }
 
-  val bpmOptions = (1..10).toList()
+  val bpmOptions = (1..20).toList()
   val barsOptions = (1..8).toList()
 
   Row(modifier = Modifier.padding(16.dp)) {
