@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.pawelantonik.metronome.R
-import pl.pawelantonik.metronome.feature.main.domain.AccelerateSettings
+import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettings
 import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 

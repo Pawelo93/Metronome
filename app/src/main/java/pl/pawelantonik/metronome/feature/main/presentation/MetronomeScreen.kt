@@ -27,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import pl.pawelantonik.metronome.R
+import pl.pawelantonik.metronome.feature.accelerateBpm.presentation.AccelerateViewModel
 import pl.pawelantonik.metronome.feature.counter.presentation.CounterViewModel
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
 import pl.pawelantonik.metronome.feature.service.MetronomeService
@@ -41,9 +42,11 @@ fun MetronomeScreen() {
   val mainViewModel: MainViewModel = hiltViewModel()
   val counterViewModel: CounterViewModel = hiltViewModel()
   val settingsViewModel: SettingsViewModel = hiltViewModel()
+  val accelerateViewModel: AccelerateViewModel = hiltViewModel()
   mainViewModel.load()
   settingsViewModel.load()
   counterViewModel.load()
+  accelerateViewModel.load()
 
   val mainUiState by mainViewModel.uiState.collectAsState()
   val counterUiState by counterViewModel.uiState.collectAsState()
@@ -77,7 +80,7 @@ fun MetronomeScreen() {
 
         CounterView(
           selectedNumber = mainUiState.selectedBpmDeltaValue.value,
-          bpmValue = mainUiState.bpm,
+          acceleratedBpm = mainUiState.acceleratedBpm,
           onBpmValueChange = { newBpm -> mainViewModel.onChangeBpm(newBpm) },
           bpmValues = mainUiState.bpmDeltaValues,
           onAddBpm = { mainViewModel.onChangeBpmByAdding() },
@@ -94,6 +97,10 @@ fun MetronomeScreen() {
             false -> null
           },
           onClick = {
+            if (mainUiState.isRunning) {
+              accelerateViewModel.cancelAcceleration()
+            }
+
             when (mainUiState.isRunning) {
               true -> MetronomeService.getStopIntent(context)
               false -> MetronomeService.getStartIntent(context)

@@ -8,6 +8,9 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import pl.pawelantonik.metronome.common.BaseViewModel
+import pl.pawelantonik.metronome.feature.counter.domain.AcceleratedBpm
+import pl.pawelantonik.metronome.feature.counter.domain.BpmObserver
+import pl.pawelantonik.metronome.feature.counter.domain.BpmSaver
 import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
 import pl.pawelantonik.metronome.feature.main.presentation.counter.BpmDeltaValue
 import pl.pawelantonik.metronome.feature.service.domain.IsMetronomeRunningRepository
@@ -15,6 +18,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
+  private val bpmObserver: BpmObserver,
+  private val bpmSaver: BpmSaver,
   private val bpmRepository: BpmRepository,
   private val isMetronomeRunningRepository: IsMetronomeRunningRepository,
 ) : BaseViewModel() {
@@ -23,14 +28,18 @@ class MainViewModel @Inject constructor(
   val uiState = _uiState.asStateFlow()
 
   fun load() {
-    val bpm = bpmRepository.getBpm()
     val bpmDelta = bpmRepository.getDelta()
     val selectedBpmDelta = BpmDeltaValue.entries.firstOrNull { it.value == bpmDelta }
     _uiState.update {
       it.copy(
-        bpm = bpm,
         selectedBpmDeltaValue = selectedBpmDelta ?: BpmDeltaValue.FIVE,
       )
+    }
+
+    viewModelScope.launch {
+      bpmObserver.observe().collectLatest { bpm ->
+        _uiState.update { it.copy(acceleratedBpm = bpm) }
+      }
     }
 
     viewModelScope.launch {
@@ -41,16 +50,15 @@ class MainViewModel @Inject constructor(
   }
 
   fun onChangeBpmByAdding() {
-    onChangeBpm(_uiState.value.bpm + _uiState.value.selectedBpmDelta)
+    onChangeBpm(_uiState.value.acceleratedBpm.value + _uiState.value.selectedBpmDelta)
   }
 
   fun onChangeBpmBySubtract() {
-    onChangeBpm(_uiState.value.bpm - _uiState.value.selectedBpmDelta)
+    onChangeBpm(_uiState.value.acceleratedBpm.value - _uiState.value.selectedBpmDelta)
   }
 
   fun onChangeBpm(newBpm: Int) {
-    bpmRepository.saveBpm(newBpm)
-    _uiState.update { it.copy(bpm = newBpm) }
+//    bpmSaver.save(newBpm)
   }
 
   fun onSelectBpmDeltaValue(bpmDeltaValue: BpmDeltaValue) {
@@ -60,14 +68,14 @@ class MainViewModel @Inject constructor(
 
   data class UiState(
     val isRunning: Boolean,
-    val bpm: Int,
+    val acceleratedBpm: AcceleratedBpm,
     val selectedBpmDeltaValue: BpmDeltaValue,
     val bpmDeltaValues: List<BpmDeltaValue>,
   ) {
     companion object {
       fun initial() = UiState(
         isRunning = false,
-        bpm = 60,
+        acceleratedBpm = AcceleratedBpm(60, false),
         selectedBpmDeltaValue = BpmDeltaValue.TWO,
         bpmDeltaValues = BpmDeltaValue.entries,
       )
@@ -78,6 +86,6 @@ class MainViewModel @Inject constructor(
 
     // doubles
     val intervalMs: Long
-      get() = (60000.0 / bpm).toLong()
+      get() = (60000.0 / acceleratedBpm.value).toLong()
   }
 }

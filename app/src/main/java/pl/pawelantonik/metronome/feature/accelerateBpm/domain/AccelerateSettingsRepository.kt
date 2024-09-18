@@ -1,4 +1,4 @@
-package pl.pawelantonik.metronome.feature.main.domain
+package pl.pawelantonik.metronome.feature.accelerateBpm.domain
 
 import kotlinx.coroutines.flow.Flow
 

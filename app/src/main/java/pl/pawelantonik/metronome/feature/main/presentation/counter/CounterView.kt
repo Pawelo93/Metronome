@@ -17,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import pl.pawelantonik.metronome.feature.counter.domain.AcceleratedBpm
 import pl.pawelantonik.metronome.feature.main.presentation.SwipeValueSelector
 import pl.pawelantonik.metronome.ui.extensions.clickableWithoutRipple
 import pl.pawelantonik.metronome.ui.theme.AppTheme
@@ -24,7 +25,7 @@ import pl.pawelantonik.metronome.ui.theme.AppTheme
 @Composable
 fun CounterView(
   selectedNumber: Int,
-  bpmValue: Int,
+  acceleratedBpm: AcceleratedBpm,
   bpmValues: List<BpmDeltaValue>,
   onBpmValueChange: (value: Int) -> Unit,
   onChangeBpmValue: (value: BpmDeltaValue) -> Unit,
@@ -49,7 +50,8 @@ fun CounterView(
 
     Column {
       SwipeValueSelector(
-        initialValue = bpmValue,
+        initialValue = acceleratedBpm.value,
+        hasAcceleration = acceleratedBpm.hasAcceleration,
         onValueChange = {
           onBpmValueChange(it)
         },

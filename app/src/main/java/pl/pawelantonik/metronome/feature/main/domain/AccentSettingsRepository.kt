@@ -14,4 +14,8 @@ data class AccentSettings(
   override fun toString(): String {
     return "$bits/4"
   }
+
+  companion object {
+    fun default() = AccentSettings(bits = 4)
+  }
 }

@@ -6,10 +6,10 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
+import pl.pawelantonik.metronome.feature.counter.domain.BpmObserver
+import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
 import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
 import java.util.TimerTask
 import java.util.concurrent.Executors
@@ -32,7 +32,7 @@ interface PulseGenerator {
 
 @Singleton
 class PulseGeneratorImpl @Inject constructor(
-  private val bpmRepository: BpmRepository,
+  private val bpmObserver: BpmObserver,
   private val accentSettingsRepository: AccentSettingsRepository,
 ) : PulseGenerator {
 
@@ -51,35 +51,13 @@ class PulseGeneratorImpl @Inject constructor(
     return pulseFlow
   }
 
-  @SuppressLint("DiscouragedApi")
   private fun run() {
     job?.cancel()
 
     job = coroutineScope.launch {
       accentSettingsRepository.observe()
-        .combine(bpmRepository.observeBpm()) { settings, bpm -> Pair(settings, bpm) }
-        .collectLatest { (settings, bpm) ->
-          stop()
-          var counterValue = 0
-          scheduler = Executors.newScheduledThreadPool(1)
-          scheduledFuture = scheduler?.scheduleAtFixedRate(
-            object : TimerTask() {
-              override fun run() {
-                counterValue++
-                if (settings != null && counterValue > settings.bits) {
-                  counterValue = 1
-                }
-
-                // generate pulse
-                if (counterValue == 1) {
-                  pulseFlow.update { Pulse(true, counterValue) }
-                } else {
-                  pulseFlow.update { Pulse(false, counterValue) }
-                }
-              }
-            },
-            0, bpm.intervalMs, TimeUnit.MILLISECONDS,
-          )
+        .collectLatest { settings ->
+          counterBody(settings)
         }
     }
   }
@@ -97,5 +75,37 @@ class PulseGeneratorImpl @Inject constructor(
     }
 
     pulseFlow.value = null
+  }
+
+  @SuppressLint("DiscouragedApi")
+  private fun counterBody(settings: AccentSettings?) {
+    val bpm = bpmObserver.get()
+    println("HERE ### bpm $bpm")
+    stop()
+    var counterValue = 0
+    scheduler = Executors.newScheduledThreadPool(1)
+    scheduledFuture = scheduler?.scheduleAtFixedRate(
+      object : TimerTask() {
+        override fun run() {
+          counterValue++
+          if (settings != null && counterValue > settings.bits) {
+            counterValue = 1
+          }
+
+          // generate pulse
+          if (counterValue == 1) {
+            pulseFlow.update { Pulse(true, counterValue) }
+          } else {
+            pulseFlow.update { Pulse(false, counterValue) }
+          }
+
+          // check if bpm changed
+          if (bpm != bpmObserver.get()) {
+            counterBody(settings)
+          }
+        }
+      },
+      0, bpm.intervalMs, TimeUnit.MILLISECONDS,
+    )
   }
 }

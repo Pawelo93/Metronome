@@ -5,8 +5,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import pl.pawelantonik.metronome.common.BaseViewModel
-import pl.pawelantonik.metronome.feature.main.domain.AccelerateSettings
-import pl.pawelantonik.metronome.feature.main.domain.AccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettings
+import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerationSwitcher
 import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
 import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
 import pl.pawelantonik.metronome.feature.settings.domain.IsVibrationEnabledRepository
@@ -17,6 +18,7 @@ class SettingsViewModel @Inject constructor(
   private val accentSettingsRepository: AccentSettingsRepository,
   private val accelerateSettingsRepository: AccelerateSettingsRepository,
   private val isVibrationEnabledRepository: IsVibrationEnabledRepository,
+  private val accelerationSwitch: AccelerationSwitcher,
 ) : BaseViewModel() {
 
   private val _uiState = MutableStateFlow(UiState.initial())
@@ -38,7 +40,7 @@ class SettingsViewModel @Inject constructor(
   }
 
   fun onUpdateAccelerateSettings(accelerateSettings: AccelerateSettings?) {
-    accelerateSettingsRepository.save(accelerateSettings)
+    accelerationSwitch.switch(accelerateSettings)
     _uiState.update { it.copy(accelerateSettings = accelerateSettings) }
   }
 

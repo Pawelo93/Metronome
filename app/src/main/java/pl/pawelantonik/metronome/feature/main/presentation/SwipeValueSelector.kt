@@ -20,6 +20,7 @@ import kotlin.math.roundToInt
 @Composable
 fun SwipeValueSelector(
   initialValue: Int,
+  hasAcceleration: Boolean,
   minValue: Int = 50,
   maxValue: Int = 200,
   sensitivity: Float = 0.2f,
@@ -55,8 +56,12 @@ fun SwipeValueSelector(
         fontSize = TextUnit(
           80f,
           TextUnitType.Sp
-        ), fontWeight = FontWeight.Bold,
-        color = AppTheme.colors.onPrimary,
+        ),
+        fontWeight = FontWeight.Bold,
+        color = when (hasAcceleration) {
+          true -> AppTheme.colors.accentGreen
+          false -> AppTheme.colors.onPrimary
+        },
       ),
       text = currentValue.toString(),
     )

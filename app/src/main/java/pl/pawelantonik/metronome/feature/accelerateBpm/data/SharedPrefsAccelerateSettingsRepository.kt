@@ -1,10 +1,10 @@
-package pl.pawelantonik.metronome.feature.main.data
+package pl.pawelantonik.metronome.feature.accelerateBpm.data
 
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import pl.pawelantonik.metronome.feature.main.domain.AccelerateSettings
-import pl.pawelantonik.metronome.feature.main.domain.AccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettings
+import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
