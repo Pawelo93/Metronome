@@ -1,7 +1,6 @@
 package pl.pawelantonik.metronome.feature.settings.presentation
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -132,13 +131,14 @@ private fun OptionItem(
       .clickable { onClick() }
       .fillMaxWidth(),
     shape = RoundedCornerShape(16.dp),
-    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+    colors = CardDefaults.cardColors(
+      containerColor = AppTheme.colors.secondary,
+    )
   ) {
 
     Column(
       modifier = Modifier
         .fillMaxWidth()
-        .background(AppTheme.colors.secondary)
         .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
     ) {
 
