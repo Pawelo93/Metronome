@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
 import pl.pawelantonik.metronome.ui.theme.AppTheme
@@ -18,8 +19,15 @@ fun TickSettingsDialog(
   onOptionSelected: (AccentSettings?) -> Unit,
 ) {
   AlertDialog(
+    containerColor = AppTheme.colors.primary,
     onDismissRequest = onDismiss,
-    title = { Text(text = "Choose a time signature", style = AppTheme.typography.headingH3) },
+    title = {
+      Text(
+        text = "Choose a time signature",
+        style = AppTheme.typography.headingH3,
+        color = AppTheme.colors.secondaryText,
+      )
+    },
     text = {
       Column {
         TickDialogTextButton(
@@ -39,10 +47,14 @@ fun TickSettingsDialog(
     confirmButton = {},
     dismissButton = {
       TextButton(onClick = onDismiss) {
-        Text("Cancel")
+        Text(
+          "Cancel",
+          style = AppTheme.typography.basic,
+          color = AppTheme.colors.secondaryText,
+        )
       }
     },
-    modifier = Modifier.padding(vertical = 20.dp)
+    modifier = Modifier.padding(vertical = 20.dp),
   )
 }
 
@@ -53,14 +65,28 @@ private fun TickDialogTextButton(
 ) {
   TextButton(
     modifier = Modifier.fillMaxWidth(),
-    onClick = { onOptionSelected(accentSettings) }) {
+    onClick = {
+      onOptionSelected(accentSettings)
+    },
+  ) {
     Text(
       text = when {
         accentSettings != null -> accentSettings.toString()
         else -> "None"
       },
       style = AppTheme.typography.basicBold,
-      color = AppTheme.colors.primary
+      color = AppTheme.colors.secondaryText,
+    )
+  }
+}
+
+@Preview
+@Composable
+private fun TickSettingsDialogPreview() {
+  AppTheme {
+    TickSettingsDialog(
+      onDismiss = {},
+      onOptionSelected = {},
     )
   }
 }
