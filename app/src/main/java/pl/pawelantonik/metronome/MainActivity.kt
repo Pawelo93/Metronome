@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.core.app.ActivityCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import pl.pawelantonik.metronome.common.BaseActivity
 import pl.pawelantonik.metronome.feature.main.MetronomeSoundPlayer
@@ -17,6 +18,7 @@ class MainActivity : BaseActivity() {
   lateinit var metronomeSoundPlayer: MetronomeSoundPlayer
 
   override fun onCreate(savedInstanceState: Bundle?) {
+    installSplashScreen()
     super.onCreate(savedInstanceState)
 
     metronomeSoundPlayer.init(this)
