@@ -48,12 +48,15 @@ class PulseGeneratorImpl @Inject constructor(
   }
 
   private fun run() {
+    isRunning = true
     job?.cancel()
 
     job = coroutineScope.launch {
       accentSettingsRepository.observe()
         .collectLatest { settings ->
-          runnerBlock(settings)
+          if (isRunning) {
+            runnerBlock(settings)
+          }
         }
     }
   }
@@ -73,10 +76,8 @@ class PulseGeneratorImpl @Inject constructor(
 
   @SuppressLint("DiscouragedApi")
   private fun runnerBlock(settings: AccentSettings?) {
-    stop()
     var counterValue = 0
 
-    isRunning = true
     runnerBackgroundThread = Thread {
       var currentTime = System.currentTimeMillis()
       while (isRunning) {

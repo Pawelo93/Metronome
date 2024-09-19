@@ -29,6 +29,7 @@ class AccelerateViewModel @Inject constructor(
 
       if (accelerateSettings != null) {
         pulseGenerator.observe().collectLatest { pulse ->
+          println("HERE ### pulse $pulse")
           pulse?.let {
             accelerateUseCase.execute()
           }
