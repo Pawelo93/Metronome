@@ -1,19 +1,19 @@
 package pl.pawelantonik.metronome.feature.service
 
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import pl.pawelantonik.metronome.feature.main.SoundPlayer
+import pl.pawelantonik.metronome.feature.settings.domain.IsVibrationEnabledRepository
 import javax.inject.Inject
 
 class Ticker @Inject constructor(
   private val pulseGenerator: PulseGenerator,
   private val soundPlayer: SoundPlayer,
+  private val isVibrationEnabledRepository: IsVibrationEnabledRepository,
+  private val appVibrator: AppVibrator,
 ) {
 
   private val coroutineScope = MainScope()
@@ -23,8 +23,12 @@ class Ticker @Inject constructor(
     job?.cancel()
 
     job = coroutineScope.launch {
-      pulseGenerator.start().collectLatestNotNull { pulse ->
+      pulseGenerator.start().filterNotNull().collectLatest { pulse ->
         soundPlayer.play(pulse.isAccent)
+
+        if (isVibrationEnabledRepository.get()) {
+          appVibrator.vibrate()
+        }
       }
     }
   }
@@ -32,11 +36,5 @@ class Ticker @Inject constructor(
   fun stop() {
     job?.cancel()
     pulseGenerator.stop()
-  }
-
-  private suspend fun <T : Any> Flow<T?>.collectLatestNotNull(action: suspend (T) -> Unit) {
-    this.filterNotNull().collectLatest { value ->
-      action(value)
-    }
   }
 }

@@ -15,7 +15,6 @@ class InMemoryAccelerationRepository @Inject constructor() : AccelerationReposit
   private val _accelerationFlow = MutableStateFlow(acceleration)
 
   override fun set(acceleration: Acceleration) {
-    println("HERE ### set $acceleration")
     this.acceleration = acceleration
     _accelerationFlow.value = acceleration
   }
