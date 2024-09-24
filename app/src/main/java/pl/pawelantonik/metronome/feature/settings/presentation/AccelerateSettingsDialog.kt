@@ -1,4 +1,4 @@
-package pl.pawelantonik.metronome.feature.main.presentation
+package pl.pawelantonik.metronome.feature.settings.presentation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -96,7 +96,7 @@ fun BpmSelector(
   var bpmExpanded by remember { mutableStateOf(false) }
   var barsExpanded by remember { mutableStateOf(false) }
 
-  val bpmOptions = (1..20).toList()
+  val bpmOptions = (1..10).toList()
   val barsOptions = (1..8).toList()
 
   Row(modifier = Modifier.padding(16.dp)) {

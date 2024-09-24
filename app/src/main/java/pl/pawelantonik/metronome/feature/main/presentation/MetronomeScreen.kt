@@ -31,8 +31,10 @@ import pl.pawelantonik.metronome.feature.accelerateBpm.presentation.AccelerateVi
 import pl.pawelantonik.metronome.feature.counter.presentation.CounterViewModel
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
 import pl.pawelantonik.metronome.feature.service.MetronomeService
+import pl.pawelantonik.metronome.feature.settings.presentation.AccelerateSettingsDialog
 import pl.pawelantonik.metronome.feature.settings.presentation.SettingsView
 import pl.pawelantonik.metronome.feature.settings.presentation.SettingsViewModel
+import pl.pawelantonik.metronome.feature.settings.presentation.TickSettingsDialog
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)

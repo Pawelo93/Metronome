@@ -1,4 +1,4 @@
-package pl.pawelantonik.metronome.feature.main.presentation
+package pl.pawelantonik.metronome.feature.settings.presentation
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
