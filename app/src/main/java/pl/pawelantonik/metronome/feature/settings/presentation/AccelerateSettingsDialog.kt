@@ -20,7 +20,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettings
+import pl.pawelantonik.metronome.feature.settings.domain.AccelerateSettings
 import pl.pawelantonik.metronome.ui.theme.AppTheme
 
 @Composable
@@ -92,7 +92,7 @@ fun BpmSelector(
   onBpmSelected: (bpm: Int) -> Unit,
   onBarsSelected: (bars: Int) -> Unit,
 ) {
-  // todo needs default values
+  // TODO needs default values provider
   var bpmExpanded by remember { mutableStateOf(false) }
   var barsExpanded by remember { mutableStateOf(false) }
 

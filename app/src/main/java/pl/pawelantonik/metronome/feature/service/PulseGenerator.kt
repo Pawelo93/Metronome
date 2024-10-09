@@ -2,6 +2,7 @@ package pl.pawelantonik.metronome.feature.service
 
 import android.annotation.SuppressLint
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.Flow
@@ -9,9 +10,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import pl.pawelantonik.metronome.feature.counter.domain.BpmObserver
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettings
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -55,6 +57,9 @@ class PulseGeneratorImpl @Inject constructor(
       accentSettingsRepository.observe()
         .collectLatest { settings ->
           if (isRunning) {
+            withContext(Dispatchers.IO) {
+              stop()
+            }
             runnerBlock(settings)
           }
         }
@@ -103,9 +108,12 @@ class PulseGeneratorImpl @Inject constructor(
 
           Thread.sleep(0, 100)
         } catch (e: InterruptedException) {
-          Log.e("ThreadExample", "Thread interrupted", e)
+          Log.e(this::class.java.simpleName, "Thread interrupted", e)
         }
       }
-    }.apply { start() }
+    }.apply {
+      isRunning = true
+      start()
+    }
   }
 }

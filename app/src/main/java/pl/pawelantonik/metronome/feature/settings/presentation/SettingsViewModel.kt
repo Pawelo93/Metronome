@@ -1,15 +1,18 @@
 package pl.pawelantonik.metronome.feature.settings.presentation
 
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import pl.pawelantonik.metronome.common.BaseViewModel
-import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettings
-import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccelerateSettings
+import pl.pawelantonik.metronome.feature.settings.domain.AccelerateSettingsRepository
 import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerationSwitcher
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettings
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettingsRepository
 import pl.pawelantonik.metronome.feature.settings.domain.IsVibrationEnabledRepository
 import javax.inject.Inject
 
@@ -22,17 +25,13 @@ class SettingsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
   private val _uiState = MutableStateFlow(UiState.initial())
-  val uiState = _uiState.asStateFlow()
-
-  fun load() {
-    _uiState.update {
-      UiState(
-        accentSettings = accentSettingsRepository.get(),
-        accelerateSettings = accelerateSettingsRepository.get(),
-        isVibrationEnabled = isVibrationEnabledRepository.get(),
-      )
-    }
-  }
+  val uiState = _uiState
+    .onStart { load() }
+    .stateIn(
+      viewModelScope,
+      SharingStarted.Lazily,
+      UiState.initial(),
+    )
 
   fun onUpdateTickSettings(accentSettings: AccentSettings?) {
     accentSettingsRepository.save(accentSettings)
@@ -61,14 +60,21 @@ class SettingsViewModel @Inject constructor(
     _uiState.update { it.copy(isVibrationEnabled = newIsVibrationEnabled) }
   }
 
+  private fun load() {
+    _uiState.update {
+      UiState(
+        accentSettings = accentSettingsRepository.get(),
+        accelerateSettings = accelerateSettingsRepository.get(),
+        isVibrationEnabled = isVibrationEnabledRepository.get(),
+      )
+    }
+  }
+
   data class UiState(
     val accentSettings: AccentSettings?,
     val accelerateSettings: AccelerateSettings?,
     val isVibrationEnabled: Boolean,
   ) {
-
-    val accelerateSettingsOrDefault: AccelerateSettings
-      get() = accelerateSettings ?: AccelerateSettings(2, 1)
 
     companion object {
       fun initial() = UiState(
@@ -77,5 +83,8 @@ class SettingsViewModel @Inject constructor(
         isVibrationEnabled = false,
       )
     }
+
+    val accelerateSettingsOrDefault: AccelerateSettings
+      get() = accelerateSettings ?: AccelerateSettings(2, 1)
   }
 }

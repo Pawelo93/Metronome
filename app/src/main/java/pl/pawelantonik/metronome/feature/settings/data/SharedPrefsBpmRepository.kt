@@ -1,10 +1,10 @@
-package pl.pawelantonik.metronome.feature.main.data
+package pl.pawelantonik.metronome.feature.settings.data
 
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
-import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
+import pl.pawelantonik.metronome.feature.settings.domain.BpmRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

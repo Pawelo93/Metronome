@@ -8,21 +8,21 @@ class AccelerateUseCase @Inject constructor(
 ) {
 
   fun execute() {
-    val state = accelerateDataPreparer.execute()
+    val accelerateState = accelerateDataPreparer.execute()
 
-    if (state is AccelerationState.AccelerateData) {
-      with(state) {
+    if (accelerateState is AccelerationState.AccelerateData) {
+      with(accelerateState) {
 
         var newCurrentBit = currentBit + 1
         var newBpm = currentBpm
         var newBar = currentBar
 
-        if (newCurrentBit > state.constBitsInEveryBar) {
+        if (newCurrentBit > constBitsInEveryBar) {
           newCurrentBit = 1
           newBar += 1
 
-          if (newBar > state.constBarsToAccelerationCount) {
-            newBpm += state.constNextBarBpmAcceleration
+          if (newBar > constBarsToAccelerationCount) {
+            newBpm += constNextBarBpmAcceleration
             newBar = 1
           }
         }

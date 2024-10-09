@@ -6,16 +6,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import pl.pawelantonik.metronome.feature.accelerateBpm.data.InMemoryAccelerationRepository
 import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerationRepository
-import pl.pawelantonik.metronome.feature.counter.data.SharedPrefsCounterSettingsRepository
-import pl.pawelantonik.metronome.feature.counter.domain.CounterSettingsRepository
-import pl.pawelantonik.metronome.feature.main.MetronomeSoundPlayer
-import pl.pawelantonik.metronome.feature.main.SoundPlayer
-import pl.pawelantonik.metronome.feature.accelerateBpm.data.SharedPrefsAccelerateSettingsRepository
-import pl.pawelantonik.metronome.feature.main.data.SharedPrefsBpmRepository
-import pl.pawelantonik.metronome.feature.main.data.SharedPrefsAccentSettingsRepository
-import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerateSettingsRepository
-import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.data.SharedPrefsCounterSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.CounterSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.data.SharedPrefsAccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.data.SharedPrefsBpmRepository
+import pl.pawelantonik.metronome.feature.settings.data.SharedPrefsAccentSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.BpmRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettingsRepository
 import pl.pawelantonik.metronome.feature.service.PulseGenerator
 import pl.pawelantonik.metronome.feature.service.PulseGeneratorImpl
 import pl.pawelantonik.metronome.feature.service.data.InMemoryIsMetronomeRunningRepository
@@ -26,8 +24,6 @@ import pl.pawelantonik.metronome.feature.settings.domain.IsVibrationEnabledRepos
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class MainModule {
-
-  @Binds abstract fun bindSoundPlayer(timer: MetronomeSoundPlayer): SoundPlayer
 
   @Binds abstract fun bindBpmRepository(bpmRepository: SharedPrefsBpmRepository): BpmRepository
 

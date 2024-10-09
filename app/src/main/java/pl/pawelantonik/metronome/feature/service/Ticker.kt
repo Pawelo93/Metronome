@@ -5,13 +5,13 @@ import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
-import pl.pawelantonik.metronome.feature.main.SoundPlayer
+import pl.pawelantonik.metronome.feature.main.MetronomeSoundPlayer
 import pl.pawelantonik.metronome.feature.settings.domain.IsVibrationEnabledRepository
 import javax.inject.Inject
 
 class Ticker @Inject constructor(
   private val pulseGenerator: PulseGenerator,
-  private val soundPlayer: SoundPlayer,
+  private val soundPlayer: MetronomeSoundPlayer,
   private val isVibrationEnabledRepository: IsVibrationEnabledRepository,
   private val appVibrator: AppVibrator,
 ) {

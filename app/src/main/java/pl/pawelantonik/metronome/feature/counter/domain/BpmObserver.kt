@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerationRepository
-import pl.pawelantonik.metronome.feature.main.domain.BpmRepository
+import pl.pawelantonik.metronome.feature.settings.domain.BpmRepository
 import javax.inject.Inject
 
 data class AcceleratedBpm(

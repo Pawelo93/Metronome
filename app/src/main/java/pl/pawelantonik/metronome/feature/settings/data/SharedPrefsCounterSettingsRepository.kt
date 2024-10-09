@@ -1,9 +1,9 @@
-package pl.pawelantonik.metronome.feature.counter.data
+package pl.pawelantonik.metronome.feature.settings.data
 
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import pl.pawelantonik.metronome.feature.counter.domain.CounterSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.CounterSettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

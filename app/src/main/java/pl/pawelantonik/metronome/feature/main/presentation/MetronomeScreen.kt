@@ -1,5 +1,6 @@
 package pl.pawelantonik.metronome.feature.main.presentation
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -12,6 +13,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,8 +28,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import pl.pawelantonik.metronome.R
-import pl.pawelantonik.metronome.feature.accelerateBpm.presentation.AccelerateViewModel
 import pl.pawelantonik.metronome.feature.counter.presentation.CounterViewModel
 import pl.pawelantonik.metronome.feature.main.presentation.counter.CounterView
 import pl.pawelantonik.metronome.feature.service.MetronomeService
@@ -44,15 +46,12 @@ fun MetronomeScreen() {
   val mainViewModel: MainViewModel = hiltViewModel()
   val counterViewModel: CounterViewModel = hiltViewModel()
   val settingsViewModel: SettingsViewModel = hiltViewModel()
-  val accelerateViewModel: AccelerateViewModel = hiltViewModel()
-  mainViewModel.load()
-  settingsViewModel.load()
-  counterViewModel.load()
-  accelerateViewModel.load()
 
   val mainUiState by mainViewModel.uiState.collectAsState()
-  val counterUiState by counterViewModel.uiState.collectAsState()
+  val counterText by counterViewModel.counterText.collectAsState()
   val settingsUiState by settingsViewModel.uiState.collectAsState()
+
+  HandleMetronomeServiceStartAndStop(mainViewModel, context)
 
   Scaffold(
     topBar = {
@@ -93,22 +92,9 @@ fun MetronomeScreen() {
         MainRoundButton(
           isRunning = mainUiState.isRunning,
           durationMillis = mainUiState.intervalMs,
-          // TODO change this
-          counterText = when (counterUiState.isCounterEnabled) {
-            true -> counterUiState.counterText
-            false -> null
-          },
+          counterText = counterText,
           onClick = {
-            if (mainUiState.isRunning) {
-              accelerateViewModel.cancelAcceleration()
-            }
-
-            when (mainUiState.isRunning) {
-              true -> MetronomeService.getStopIntent(context)
-              false -> MetronomeService.getStartIntent(context)
-            }.also {
-              context.startService(it)
-            }
+            mainViewModel.onToggleRunning()
           },
         )
 
@@ -161,6 +147,23 @@ fun MetronomeScreen() {
       }
     },
   )
+}
+
+@Composable
+private fun HandleMetronomeServiceStartAndStop(
+  mainViewModel: MainViewModel,
+  context: Context
+) {
+  LaunchedEffect(Unit) {
+    mainViewModel.shouldStartService.collectLatest { shouldStart ->
+      when (shouldStart) {
+        true -> MetronomeService.getStartIntent(context)
+        false -> MetronomeService.getStopIntent(context)
+      }.also {
+        context.startService(it)
+      }
+    }
+  }
 }
 
 @Preview(showBackground = true)

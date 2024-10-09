@@ -1,7 +1,8 @@
 package pl.pawelantonik.metronome.feature.accelerateBpm.domain
 
 import pl.pawelantonik.metronome.feature.accelerateBpm.domain.AccelerationState.*
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettingsRepository
 import javax.inject.Inject
 
 class AccelerateDataPreparer @Inject constructor(
@@ -13,7 +14,8 @@ class AccelerateDataPreparer @Inject constructor(
     val accelerateSettings = accelerateSettingsRepository.get()
       ?: return AccelerationDisabled
 
-    val accentSettings = accentSettingsRepository.get() ?: throw IllegalStateException("Accent settings is null")
+    val accentSettings = accentSettingsRepository.get()
+      ?: throw IllegalStateException("Accent settings is null")
 
     val currentAcceleration = accelerationRepository.get()
 

@@ -1,10 +1,10 @@
-package pl.pawelantonik.metronome.feature.main.data
+package pl.pawelantonik.metronome.feature.settings.data
 
 import android.content.SharedPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettings
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettingsRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

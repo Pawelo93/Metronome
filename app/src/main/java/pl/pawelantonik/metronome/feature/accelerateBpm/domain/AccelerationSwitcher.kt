@@ -1,7 +1,9 @@
 package pl.pawelantonik.metronome.feature.accelerateBpm.domain
 
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettings
-import pl.pawelantonik.metronome.feature.main.domain.AccentSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccelerateSettings
+import pl.pawelantonik.metronome.feature.settings.domain.AccelerateSettingsRepository
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettings
+import pl.pawelantonik.metronome.feature.settings.domain.AccentSettingsRepository
 import javax.inject.Inject
 
 class AccelerationSwitcher @Inject constructor(

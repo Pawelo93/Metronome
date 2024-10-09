@@ -1,4 +1,4 @@
-package pl.pawelantonik.metronome.feature.counter.domain
+package pl.pawelantonik.metronome.feature.settings.domain
 
 import kotlinx.coroutines.flow.Flow
 
